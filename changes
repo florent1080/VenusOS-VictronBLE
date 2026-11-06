@@ -1,3 +1,8 @@
+v1.1:
+  - gitHubInfo in the "user:branch" format SetupHelper expects (was "user/repo:branch":
+    a copy installed by hand in /data was added to PackageManager with a wrong GitHub user)
+  - Command line hints and help name the command as typed: victron-ble (was cli.py)
+
 v1.0:
   - Initial release
   - Victron Bluetooth Instant Readout devices published as read-only Venus OS D-Bus services:

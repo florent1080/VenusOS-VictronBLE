@@ -1,4 +1,4 @@
-"""Every Victron device heard, whitelisted or not, for `cli.py discover` and a future UI.
+"""Every Victron device heard, whitelisted or not, for `victron-ble discover` and a future UI.
 
 Written to /run/victron-ble/seen.json (tmpfs) atomically, at most every few seconds.
 It never contains a key: only the key check byte, which every frame broadcasts in clear.

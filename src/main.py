@@ -4,7 +4,7 @@
 Hears Victron Instant Readout advertisements (read only: no GATT connection, no
 pairing), decrypts the whitelisted devices, publishes each one as a read-only Venus OS
 D-Bus service (mappers/) and keeps /run/victron-ble/seen.json up to date for
-`cli.py discover`.
+`victron-ble discover`.
 
   main.py [--config PATH] [--seen PATH] [--scanner auto|venus|bluez|none]
           [--replay FILE [--replay-speed X] [--replay-repeat]] [--duration S]
@@ -30,7 +30,7 @@ import scanner as scanner_mod     # noqa: E402
 import seen as seen_mod           # noqa: E402
 from parsers import aes           # noqa: E402
 
-VERSION = '1.0'
+VERSION = '1.1'
 
 # Problems a good frame solves: logged again if they come back. The other notes
 # ('no_mapper', 'duplicate', 'duplicate_blocked') are logged once per whitelisting.

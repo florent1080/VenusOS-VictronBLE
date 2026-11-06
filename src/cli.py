@@ -1,19 +1,19 @@
 #!/usr/bin/python3 -u
 """victron-ble command line.
 
-  cli.py validate [-c CONFIG]
+  victron-ble validate [-c CONFIG]
       Check the whitelist file; exit code 0 when valid, 1 otherwise.
 
-  cli.py discover [--seen PATH] [--all] [--json]
+  victron-ble discover [--seen PATH] [--all] [--json]
       List the Victron devices the service hears (from /run/victron-ble/seen.json).
 
-  cli.py add MAC [--key HEX] [--type TYPE] [--name NAME] [--force] [-c CONFIG]
+  victron-ble add MAC [--key HEX] [--type TYPE] [--name NAME] [--force] [-c CONFIG]
       Whitelist a device. Without --key the key is asked without echo (keeps it out
       of the shell history). The running service picks the change up within seconds.
 
-  cli.py remove MAC [-c CONFIG]
+  victron-ble remove MAC [-c CONFIG]
 
-  cli.py decode (--key HEX | -c CONFIG --mac MAC) [--type TYPE] [--mac MAC] (FRAME_HEX... | --jsonl FILE)
+  victron-ble decode (--key HEX | -c CONFIG --mac MAC) [--type TYPE] [--mac MAC] (FRAME_HEX... | --jsonl FILE)
       Decode recorded Instant Readout frames (manufacturer data without the
       0x02E1 company id, e.g. the "mfg" field of the diagnostic's victron_adv.jsonl).
 """
@@ -71,7 +71,7 @@ def _describe(d):
         else:
             text = '%s: waiting for an Instant Readout frame' % label
     elif d.get('supported_type'):
-        text = 'not whitelisted (cli.py add %s --type %s)' % (d['mac'], d['supported_type'])
+        text = 'not whitelisted (victron-ble add %s --type %s)' % (d['mac'], d['supported_type'])
     elif d.get('record_type'):
         text = 'not whitelisted (%s: not supported yet)' % d.get('record_name')
     else:
@@ -275,7 +275,7 @@ def cmd_decode(args, out):
 
 
 def build_parser():
-    p = argparse.ArgumentParser(prog='cli.py', description='VenusOS-VictronBLE command line')
+    p = argparse.ArgumentParser(prog='victron-ble', description='VenusOS-VictronBLE command line')
     sub = p.add_subparsers(dest='command')
     v = sub.add_parser('validate', help='check the whitelist file')
     v.add_argument('-c', '--config', default=registry.DEFAULT_PATH)

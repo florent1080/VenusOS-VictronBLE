@@ -135,7 +135,7 @@ class DiscoverAddRemoveTests(unittest.TestCase):
         code, out = run('discover', '--seen', self.seen)
         self.assertEqual(code, 0, out)
         self.assertIn('scanning: venus (mode auto, Venus OS Bluetooth sensors on)', out)
-        self.assertIn('not whitelisted (cli.py add FC:00:00:00:00:01 --type dcdc)', out)
+        self.assertIn('not whitelisted (victron-ble add FC:00:00:00:00:01 --type dcdc)', out)
         self.assertIn('Battery monitor: not supported yet', out)
         self.assertIn('already on D-Bus: com.victronenergy.battery.ttyUSB0', out)
         self.assertNotIn('AA:BB:CC:00:00:01', out)

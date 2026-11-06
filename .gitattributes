@@ -1,0 +1,4 @@
+# Force LF line endings on all files (Venus OS / BusyBox requires LF)
+* text=auto eol=lf
+# Raw HCI captures used by the tests
+*.btsnoop binary

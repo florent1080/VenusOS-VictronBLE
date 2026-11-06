@@ -1,0 +1,7 @@
+{
+  "version": 1,
+  "timeout_s": 60,
+  "log_level": "INFO",
+  "scanner": "auto",
+  "devices": []
+}

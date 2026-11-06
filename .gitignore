@@ -1,0 +1,4 @@
+__pycache__/
+*.pyc
+# Real Instant Readout keys for the optional real-frame tests: never published
+tests/fixtures/keys.local.json

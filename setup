@@ -1,0 +1,92 @@
+#!/bin/bash
+
+# VenusOS-VictronBLE setup script
+# Victron Bluetooth (Instant Readout) devices published as read-only Venus OS D-Bus services
+#
+# This script installs/uninstalls:
+#   - the victron-ble runit service (SetupHelper, services/victron-ble), which runs the code
+#     straight from this package directory
+#   - the default whitelist /data/conf/victron-ble.json: first installation only, never
+#     overwritten (it holds the user's devices and keys)
+#   - on the first installation only, the Venus OS "Bluetooth sensors" setting is turned on:
+#     their passive scan is the lightest one and feeds the listener. Later installs, and the
+#     reinstalls SetupHelper does after a Venus OS update, never touch that setting again: if
+#     the user turns it off, the service falls back to its own BlueZ discovery.
+
+packageDir="$(dirname "$(realpath "$0")")"
+
+#### following line incorporates helper resources into this script
+source "/data/SetupHelper/HelperResources/IncludeHelpers"
+#### end of lines to include helper resources
+
+SERVICE=victron-ble
+CONFIG=/data/conf/victron-ble.json
+
+#### running manually and target just install or uninstall
+if [ $scriptAction == 'NONE' ] ; then
+    echo
+    echo "This package publishes Victron Bluetooth (Instant Readout) devices on Venus OS"
+    echo "(Orion-Tr Smart, Blue Smart chargers...), read only"
+    echo
+    scriptAction=$(promptForAction)
+fi
+
+if [ $scriptAction == 'INSTALL' ] ; then
+    logMessage "installing VenusOS-VictronBLE"
+
+    # Fix line endings (CRLF -> LF) in case files were edited on Windows
+    find "$packageDir/src" "$packageDir/services" -type f \( -name '*.py' -o -name 'run' \) \
+        -exec sed -i 's/\r//g' {} +
+    sed -i 's/\r//g' "$packageDir/victron-ble" "$packageDir/victron-ble.json.default"
+    chmod +x "$packageDir/victron-ble" "$packageDir/src/main.py" "$packageDir/src/cli.py" \
+        "$packageDir/services/$SERVICE/run" "$packageDir/services/$SERVICE/log/run"
+    logMessage "line endings normalized (LF)"
+
+    # Checks: warnings only, the service degrades gracefully
+    if ! python3 -c 'import dbus, dbus.mainloop.glib; from gi.repository import GLib' 2> /dev/null ; then
+        logMessage "WARNING: dbus-python or GLib missing: the service cannot run"
+    fi
+    if [ ! -f /opt/victronenergy/dbus-systemcalc-py/ext/velib_python/vedbus.py ] ; then
+        logMessage "WARNING: velib_python not found: devices cannot be published on D-Bus"
+    fi
+    if ! python3 -c 'import cryptography' 2> /dev/null ; then
+        logMessage "note: python3-cryptography absent, AES through libcrypto or pure Python instead"
+    fi
+    if [ ! -e /sys/class/bluetooth/hci0 ] ; then
+        logMessage "WARNING: no Bluetooth adapter (hci0)"
+    fi
+
+    # Default whitelist, first installation only
+    if [ ! -f "$CONFIG" ] ; then
+        mkdir -p /data/conf
+        cp "$packageDir/victron-ble.json.default" "$CONFIG"
+        chmod 600 "$CONFIG"
+        logMessage "default configuration installed ($CONFIG)"
+        if dbus -y com.victronenergy.settings /Settings/Services/BleSensors SetValue 1 > /dev/null 2>&1 ; then
+            logMessage "Venus OS Bluetooth sensors turned on (first installation only)"
+        else
+            logMessage "WARNING: could not turn the Venus OS Bluetooth sensors on: the service will use its own BlueZ discovery"
+        fi
+    else
+        logMessage "configuration preserved ($CONFIG)"
+    fi
+
+    # The service runs this directory's code: restart it so an update takes effect
+    # (SetupHelper itself only restarts it when its run file changes)
+    if serviceIsUp $SERVICE ; then
+        svc -t "/service/$SERVICE"
+        logMessage "$SERVICE restarted"
+    fi
+fi
+
+if [ $scriptAction == 'UNINSTALL' ] ; then
+    logMessage "uninstalling VenusOS-VictronBLE"
+    rm -rf /run/victron-ble
+    # User data stays: the whitelist (keys), the Bluetooth sensors setting and the VRM
+    # instances kept by localsettings (/Settings/Devices/victronble_*)
+    logMessage "configuration preserved ($CONFIG), Venus OS Bluetooth sensors setting left unchanged"
+fi
+
+# Let SetupHelper handle:
+#   INSTALL_SERVICES — installs (or on uninstall removes) the victron-ble runit service
+endScript INSTALL_SERVICES

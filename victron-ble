@@ -1,0 +1,3 @@
+#!/bin/sh
+# VenusOS-VictronBLE command line: discover, add, remove, validate, decode (see README.md)
+exec python3 "$(dirname "$(readlink -f "$0")")/src/cli.py" "$@"

@@ -1,0 +1,16 @@
+v1.0:
+  - Initial release
+  - Victron Bluetooth Instant Readout devices published as read-only Venus OS D-Bus services:
+      DC/DC converters (Orion-Tr Smart, Orion Smart) -> com.victronenergy.dcdc.ble_<mac>
+      AC chargers (Blue Smart IP22/IP65/IP67, Phoenix Smart) -> com.victronenergy.charger.ble_<mac>
+  - Passive listening on the Linux HCI monitor channel (no GATT, no pairing, no btmon process)
+  - Scan by the Venus OS Bluetooth sensors (turned on at the first installation only); own BlueZ
+    discovery when the user turns them off, stopped when they come back on
+  - Whitelist /data/conf/victron-ble.json (MAC + key), hot reload, atomic writes
+  - Stable VRM instance through localsettings ClassAndVrmInstance; /Connected = 0 after timeout_s
+  - Name editable from the GUI / VRM, saved in the whitelist
+  - Devices already on D-Bus (VE.Direct...) are not published twice unless "allow_duplicate"
+  - Command line victron-ble: discover, add, remove, validate, decode
+  - AES-128: python3-cryptography, else OpenSSL libcrypto through ctypes, else pure Python
+  - Parsers derived from victron_ble 0.9.3 (Unlicense)
+  - Tested on Venus OS v3.75, Raspberry Pi 5: Orion-Tr Smart 12/12-18, Blue Smart IP65 12|25
